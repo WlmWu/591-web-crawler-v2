@@ -99,8 +99,8 @@ function storeNewItems(dataNew, dataCurrent) {
 
     // clean all data
     const START_ROW = 2;
-    const N_ROWS = sheet.getDataRange().getValues().length;
-    if (N_ROWS - 1 > START_ROW)
+    const N_ROWS = sheet.getDataRange().getValues().length - 1;
+    if (N_ROWS > START_ROW)
         sheet.deleteRows(START_ROW, N_ROWS);
 
     // append the lastest nMax_ROW data
@@ -152,6 +152,6 @@ function main() {
     let dataCrawling = getCrawlingResult();
     let dataCurrent = getCurrentItems();
     let dataNew = compareNewItem(dataCurrent, dataCrawling);
+    makeNotify(dataNew);
     storeNewItems(dataNew, dataCurrent);
-    makeNotify(dataNew)
 }
