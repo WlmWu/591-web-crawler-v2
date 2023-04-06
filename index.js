@@ -112,9 +112,10 @@ function storeNewItems(dataNew, dataCurrent) {
 }
 
 function itemObjToMessage(item) {
-    item.price = "$ " + item.price;
-    delete item["post_id"];
-    return '\n' + Object.values(item).join('\n');
+    let itemMsg = JSON.parse(JSON.stringify(item));
+    itemMsg.price = "$ " + itemMsg.price;
+    delete itemMsg["post_id"];
+    return '\n' + Object.values(itemMsg).join('\n');
 }
 
 function sendLineNotify(message) {
