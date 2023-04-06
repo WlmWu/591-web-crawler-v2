@@ -1,8 +1,6 @@
 const LINE_NOTIFY_TOKEN = "<TOKEN_HERE>";
 // Developer Tool > Network > do search > do filter "home/search/rsList"
-const SEARCH_QUERY = "https://rent.591.com.tw/home/search/rsList?is_format_data=1&is_new_list=1&type=1&region=4&kind=2&section=371,372,370&searchtype=1&rentprice=,10000&order=posttime&orderType=desc"
-
-
+const SEARCH_QUERY = ["https://rent.591.com.tw/home/search/rsList?is_format_data=1&is_new_list=1&type=1&region=4&kind=2&section=371,372,370&searchtype=1&rentprice=,10000&order=posttime&orderType=desc", "https://rent.591.com.tw/home/search/rsList?is_format_data=1&is_new_list=1&type=1&region=4&kind=3&section=371,372,370&searchtype=1&rentprice=,10000&order=posttime&orderType=desc"];
 
 var ss = SpreadsheetApp.getActiveSpreadsheet();
 var sheet = ss.getSheets()[0];
@@ -32,9 +30,9 @@ function getRegionNum(query) {
     return regionNumber;
 }
 
-function crawling() {
+function crawling(searchQueryUrl) {
     const [csrfToken, cookie] = getCsrfToken();
-    let regionNumber = getRegionNum(SEARCH_QUERY);
+    let regionNumber = getRegionNum(searchQueryUrl);
 
     const header = {
         "X-CSRF-TOKEN": csrfToken,
@@ -48,12 +46,17 @@ function crawling() {
         "muteHttpExceptions": true
     };
 
-    const response = UrlFetchApp.fetch(SEARCH_QUERY, options);
+    const response = UrlFetchApp.fetch(searchQueryUrl, options);
     return response.getContentText();
 }
 
 function getCrawlingResult() {
-    return JSON.parse(crawling())["data"]["data"].map(({ title, post_id, price, location }) => ({ title, post_id, price: price.replace(',', ''), location, url: `https://rent.591.com.tw/rent-detail-${post_id}.html` }));
+    let rtn = []
+    for (let i = 0; i < SEARCH_QUERY.length; i++) {
+        let rlt = JSON.parse(crawling(SEARCH_QUERY[i]))["data"]["data"].map(({ title, post_id, price, location }) => ({ title, post_id, price: price.replace(',', ''), location, url: `https://rent.591.com.tw/rent-detail-${post_id}.html` }));
+        rtn = [...rtn, ...rlt];
+    }
+    return rtn;
 }
 
 function getCurrentItems() {
